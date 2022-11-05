@@ -3,26 +3,15 @@ package ru.ivanau.sd.refactoring;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import ru.ivanau.sd.refactoring.dao.ProductsDao;
 import ru.ivanau.sd.refactoring.servlet.AddProductServlet;
 import ru.ivanau.sd.refactoring.servlet.GetProductsServlet;
-import ru.ivanau.sd.refactoring.servlet.QueryServlet;
-
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.Statement;
+import ru.ivanau.sd.refactoring.servlet.QueryProductsServlet;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        try (Connection c = DriverManager.getConnection("jdbc:sqlite:test.db")) {
-            String sql = "CREATE TABLE IF NOT EXISTS PRODUCT" +
-                    "(ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
-                    " NAME           TEXT    NOT NULL, " +
-                    " PRICE          INT     NOT NULL)";
-            Statement stmt = c.createStatement();
-
-            stmt.executeUpdate(sql);
-            stmt.close();
-        }
+        final ProductsDao productionDao = new ProductsDao("jdbc:sqlite:production.db");
+        productionDao.createTableIfNotExists();
 
         Server server = new Server(8081);
 
@@ -30,9 +19,9 @@ public class Main {
         context.setContextPath("/");
         server.setHandler(context);
 
-        context.addServlet(new ServletHolder(new AddProductServlet()), "/add-product");
-        context.addServlet(new ServletHolder(new GetProductsServlet()),"/get-products");
-        context.addServlet(new ServletHolder(new QueryServlet()),"/query");
+        context.addServlet(new ServletHolder(new AddProductServlet(productionDao)), "/add-product");
+        context.addServlet(new ServletHolder(new GetProductsServlet(productionDao)),"/get-products");
+        context.addServlet(new ServletHolder(new QueryProductsServlet(productionDao)),"/query");
 
         server.start();
         server.join();
