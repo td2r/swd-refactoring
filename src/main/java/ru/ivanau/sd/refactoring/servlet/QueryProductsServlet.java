@@ -18,37 +18,22 @@ public class QueryProductsServlet extends ProductServlet {
         String command = request.getParameter("command");
 
         if ("max".equals(command)) {
-            response.getWriter().println("<html><body>");
-            response.getWriter().println("<h1>Product with max price: </h1>");
-            Optional<Goods> max = dao.selectMax();
-            if (max.isPresent()) {
-                response.getWriter().println(max.get().getName() + "\t" + max.get().getPrice() + "</br>");
-            }
-            response.getWriter().println("</body></html>");
+            final Optional<Goods> max = dao.selectMax();
+            String body = "<h1>Product with max price: </h1>\n" +
+                    max.map(goods -> goods.getName() + "\t" + goods.getPrice() + "</br>\n").orElse("");
+            writeHtmlResponse(response, body);
         } else if ("min".equals(command)) {
-            response.getWriter().println("<html><body>");
-            response.getWriter().println("<h1>Product with min price: </h1>");
-            Optional<Goods> min = dao.selectMin();
-            if (min.isPresent()) {
-                response.getWriter().println(min.get().getName() + "\t" + min.get().getPrice() + "</br>");
-            }
-            response.getWriter().println("</body></html>");
+            final Optional<Goods> min = dao.selectMin();
+            String body = "<h1>Product with min price: </h1>\n" +
+                    min.map(goods -> goods.getName() + "\t" + goods.getPrice() + "</br>\n").orElse("");
+            writeHtmlResponse(response, body);
         } else if ("sum".equals(command)) {
-            response.getWriter().println("<html><body>");
-            response.getWriter().println("Summary price: ");
-            response.getWriter().println(dao.selectSum());
-            response.getWriter().println("</body></html>");
+            writeHtmlResponse(response, "Summary price: \n" + dao.selectSum() + "\n");
         } else if ("count".equals(command)) {
-            response.getWriter().println("<html><body>");
-            response.getWriter().println("Number of products: ");
-            response.getWriter().println(dao.selectCount());
-            response.getWriter().println("</body></html>");
+            writeHtmlResponse(response, "Number of products: \n" + dao.selectCount() + "\n");
         } else {
-            response.getWriter().println("Unknown command: " + command);
+            writeResponse(response, "Unknown command: " + command + "\n");
         }
-
-        response.setContentType("text/html");
-        response.setStatus(HttpServletResponse.SC_OK);
     }
 
 }

@@ -17,11 +17,8 @@ public class AddProductServlet extends ProductServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String name = request.getParameter("name");
         int price = Integer.parseInt(request.getParameter("price"));
-
         dao.insert(List.of(new Goods(name, price)));
 
-        response.setContentType("text/html");
-        response.setStatus(HttpServletResponse.SC_OK);
-        response.getWriter().println("OK");
+        writeResponse(response, "OK\n");
     }
 }

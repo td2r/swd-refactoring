@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class GetProductsServlet extends ProductServlet {
     public GetProductsServlet(ProductsDao dao) {
@@ -16,13 +17,9 @@ public class GetProductsServlet extends ProductServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         List<Goods> goodsList = dao.selectAll();
-        response.getWriter().println("<html><body>");
-        for (Goods goods : goodsList) {
-            response.getWriter().println(goods.getName() + "\t" + goods.getPrice() + "</br>");
-        }
-        response.getWriter().println("</body></html>");
-
-        response.setContentType("text/html");
-        response.setStatus(HttpServletResponse.SC_OK);
+        String body = goodsList.stream()
+                .map(goods -> goods.getName() + "\t" + goods.getPrice() + "</br>\n")
+                .collect(Collectors.joining());
+        writeHtmlResponse(response, body);
     }
 }
